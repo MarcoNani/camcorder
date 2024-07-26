@@ -3,6 +3,7 @@ import hashlib # for generating file hashs
 import os # for the files paths and other useful stuffs
 import shutil # for copying files
 import filecmp # for checking if two files are identycal
+import datetime # for the date and time
 
 
 def calculate_file_hash(file_path, algorithm='sha256'):
@@ -79,3 +80,58 @@ def copy_file(source, destination_dir, hash_file, copied_files_log_file, in_secu
             file.write(hash_file + "\n")
             if in_debug_mode:
                 print(f"The hash {hash_file} has been added to the copied files log")
+
+
+def obtain_modification_date(file_path):
+    # Get the timestamp of the last modification
+    modification_timestamp = os.path.getmtime(file_path)
+
+    # Convert the timestamp into a readable format
+    modification_date = datetime.datetime.fromtimestamp(modification_timestamp)
+
+    # Transform the modification date into a string formatted as 'YYYY-MM-DD_HH-MM-SS'
+    formatted_modification_date = modification_date.strftime('%Y-%m-%d_%H-%M-%S')
+
+    return formatted_modification_date
+
+def check_file_existence(file_path):
+    # Check if the file exists
+    if os.path.exists(file_path):
+        return True
+    else:
+        return False
+
+def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_old_name=False):
+    # Build the complete path of the copied file
+    copied_file_path = os.path.join(destination_folder, file_name)
+
+    # Obtain the modification date of the copied file
+    modification_date = obtain_modification_date(copied_file_path)
+
+    # Split the file name and the extension
+    file_name, extension = os.path.splitext(file_name)
+
+    # Build the new file name with the modification date
+    if keep_old_name:
+        new_file_name = f"{modification_date}_{file_name}"
+    else:
+        new_file_name = f"{modification_date}"
+
+    # if there is already a file with the same name in the destination folder, add a number to the new file name to avoid conflicts (e.g. 2021-01-01_12-00-00_1.MTS)
+    if check_file_existence(os.path.join(destination_folder, f"{new_file_name}{extension}")):
+        number = 1
+        while check_file_existence(os.path.join(destination_folder, f"{new_file_name}_{number}")):
+            number += 1
+        new_file_name = f"{new_file_name}_{number}"
+
+    # add the extension to the new file name
+    new_file_name = f"{new_file_name}{extension}"
+
+    # Build the complete path of the new file
+    new_file_path = os.path.join(destination_folder, new_file_name)
+
+    # Rename the copied file
+    os.rename(copied_file_path, new_file_path)
+
+    if in_debug_mode:
+        print_color.green(f"The file has been renamed to {new_file_name}")

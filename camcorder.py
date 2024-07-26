@@ -49,7 +49,10 @@ def main():
                 print(f"The file {os.path.basename(video_path)} has not been copied yet")
                 # if the file has not been copied yet, copy it to the destination folder
                 video.copy_file(video_path, current_preferences["destination_folder"], hash_file, COPIED_FILES_LOG, current_preferences["in_secure_mode"], current_preferences["in_debug_mode"])
-    
+                
+                # rename the copied video file in a descriptive way (based on the date and time of the video (YYYY-MM-DD_HH-MM-SS.MTS))
+                video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+
     # save the preferences
     preferences.save_preferences(current_preferences)
 
