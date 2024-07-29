@@ -148,28 +148,32 @@ def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_
 
     extension = os.path.splitext(video_files[0])[1]
 
-    # Ottengo il nome del file di output dalla data ulitma modifica dell'ultimo file nella lista di file da concatenare
+    # Get the output file name from the last modification date of the last file in the list of files to concatenate
     output_file_name = obtain_modification_date(video_files[-1]) + extension
 
-    # Creiamo una lista di input per ffmpeg
-    inputs = [ffmpeg.input(video_file) for video_file in video_files]
+
+
+    # Creare un file di testo temporaneo
+    with open('filelist.txt', 'w') as f:
+        for video_file in video_files:
+            # Scrivi ciascun file di input nel file di testo
+            f.write(f"file '{video_file}'\n")
 
 
     print("Concatenating the videos...")
 
-    # ROBA DI FFMPEG
-    if 1 == 2: # non la faccio mai
-        # Concatenare i video
-        (
-            ffmpeg
-            .concat(*inputs, v=1, a=1)
-            .output(os.path.join(output_directory, output_file_name))
-            .run(overwrite_output=True)
-        )
-    else:
-        with open(os.path.join(output_directory, output_file_name), 'a') as file:
-            for video in video_files:
-                file.write(video + "\n")
+    # Utilizza ffmpeg per concatenare i video elencati nel file di testo
+    (
+        ffmpeg
+        .input('filelist.txt', format='concat', safe=0)
+        .output(os.path.join(output_directory, output_file_name), c='copy')  # Utilizza la copia diretta dei codec
+        .run(overwrite_output=True, quiet=True)
+    )
+
+    # Rimuovere il file di testo temporaneo
+    os.remove('filelist.txt')
+
+
 
 
     print_color.green(f"The videos have been concatenated into {os.path.join(output_directory, output_file_name)}")
@@ -180,6 +184,3 @@ def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_
             file.write(hash_file + "\n")
             if in_debug_mode:
                 print_color.purple(f"The hash {hash_file} has been added to the copied files log")
-
-
-print(os.path.getsize("fs_sim\\camcorder\\PRIVATE\\AVCHD\\BDMV\\STREAM\\video_2.MTS"))
