@@ -4,6 +4,7 @@ import os # for the files paths and other useful stuffs
 import shutil # for copying files
 import filecmp # for checking if two files are identycal
 import datetime # for the date and time
+import ffmpeg # for the video concatenation
 
 
 def calculate_file_hash(file_path, algorithm='sha256'):
@@ -79,7 +80,7 @@ def copy_file(source, destination_dir, hash_file, copied_files_log_file, in_secu
         with open(copied_files_log_file, 'a') as file:
             file.write(hash_file + "\n")
             if in_debug_mode:
-                print(f"The hash {hash_file} has been added to the copied files log")
+                print_color.purple(f"The hash {hash_file} has been added to the copied files log")
 
 
 def obtain_modification_date(file_path):
@@ -135,3 +136,50 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
 
     if in_debug_mode:
         print_color.green(f"The file has been renamed to {new_file_name}")
+
+
+
+def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_log_file, in_debug_mode=False):
+
+    
+
+    if in_debug_mode:
+        print_color.purple(f"Video files to concatenate: {video_files}")
+
+    extension = os.path.splitext(video_files[0])[1]
+
+    # Ottengo il nome del file di output dalla data ulitma modifica dell'ultimo file nella lista di file da concatenare
+    output_file_name = obtain_modification_date(video_files[-1]) + extension
+
+    # Creiamo una lista di input per ffmpeg
+    inputs = [ffmpeg.input(video_file) for video_file in video_files]
+
+
+    print("Concatenating the videos...")
+
+    # ROBA DI FFMPEG
+    if 1 == 2: # non la faccio mai
+        # Concatenare i video
+        (
+            ffmpeg
+            .concat(*inputs, v=1, a=1)
+            .output(os.path.join(output_directory, output_file_name))
+            .run(overwrite_output=True)
+        )
+    else:
+        with open(os.path.join(output_directory, output_file_name), 'a') as file:
+            for video in video_files:
+                file.write(video + "\n")
+
+
+    print_color.green(f"The videos have been concatenated into {os.path.join(output_directory, output_file_name)}")
+
+    # add the hashes of the concatenated files to the copied_files_log_file
+    with open(copied_files_log_file, 'a') as file:
+        for hash_file in hash_to_be_concatenated:
+            file.write(hash_file + "\n")
+            if in_debug_mode:
+                print_color.purple(f"The hash {hash_file} has been added to the copied files log")
+
+
+print(os.path.getsize("fs_sim\\camcorder\\PRIVATE\\AVCHD\\BDMV\\STREAM\\video_2.MTS"))

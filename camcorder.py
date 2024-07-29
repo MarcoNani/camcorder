@@ -12,8 +12,22 @@ VIDEO_PATH_FROM_ROOT = os.path.join("PRIVATE", "AVCHD", "BDMV", "STREAM")
 
 EXTENSION = ".MTS"
 
+
+
+
+# global variables
+
+
+
+
 # FUNCTIONS
 def main():
+
+    global to_be_concatenated
+    to_be_concatenated = []
+    global hash_to_be_concatenated
+    hash_to_be_concatenated = []
+
     global current_preferences
     current_preferences = preferences.preferences_routine() # load the preferences in the global variable and ask the user for the root camcorder path if it is not set
 
@@ -33,7 +47,7 @@ def main():
     for video_path in video_files:
         hash_file = video.calculate_file_hash(video_path, 'sha256')
         if current_preferences["in_debug_mode"]:
-            print(f"The SHA-256 hash of the file {os.path.basename(video_path)} is: {hash_file}")
+            print_color.purple(f"The SHA-256 hash of the file {os.path.basename(video_path)} is: {hash_file}")
         # check if the file has already been copied (looking in the COPIED_FILES_LOG)
         if not os.path.exists(COPIED_FILES_LOG):
             # Create the destination directory if it doesn't exist
@@ -47,11 +61,37 @@ def main():
                 print_color.green(f"The file {os.path.basename(video_path)} has already been copied")
             else:
                 print(f"The file {os.path.basename(video_path)} has not been copied yet")
-                # if the file has not been copied yet, copy it to the destination folder
-                video.copy_file(video_path, current_preferences["destination_folder"], hash_file, COPIED_FILES_LOG, current_preferences["in_secure_mode"], current_preferences["in_debug_mode"])
-                
-                # rename the copied video file in a descriptive way (based on the date and time of the video (YYYY-MM-DD_HH-MM-SS.MTS))
-                video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+
+
+
+
+
+                if os.path.getsize(video_path) > current_preferences["size_limit"]:
+                    to_be_concatenated.append(video_path)
+                    hash_to_be_concatenated.append(hash_file)
+
+                    if current_preferences["in_debug_mode"]:
+                        print_color.purple(f"The file {video_path} have been recognized as part of a splitted video, added to the concatenation list")
+                else:
+                    if len(to_be_concatenated) > 0:
+                        to_be_concatenated.append(video_path)
+                        hash_to_be_concatenated.append(hash_file)
+
+                        if current_preferences["in_debug_mode"]:
+                            print_color.purple(f"The file {video_path} have been recognized as the final part of a splitted video, added to the concatenation list")
+
+                        # concatenate the files in to_be_concatenated with the output in the destination folder
+                        video.concat(to_be_concatenated, current_preferences["destination_folder"], hash_to_be_concatenated, COPIED_FILES_LOG, current_preferences["in_debug_mode"])
+
+                        to_be_concatenated = [] # reset the list of files to be concatenated
+                        hash_to_be_concatenated = [] # reset the list of hash of the files to be concatenated
+                    else:
+                        video.copy_file(video_path, current_preferences["destination_folder"], hash_file, COPIED_FILES_LOG, current_preferences["in_secure_mode"], current_preferences["in_debug_mode"])
+                        # rename the copied video file in a descriptive way (based on the date and time of the video (YYYY-MM-DD_HH-MM-SS.MTS))
+                        video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+
+
+
 
     # save the preferences
     preferences.save_preferences(current_preferences)

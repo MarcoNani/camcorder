@@ -9,7 +9,8 @@ DEFAULT_PREFERENCES = {
     "destination_folder": "transferred_videos",
     "in_secure_mode": True,
     "in_debug_mode": True,
-    "root_camcorder": ""
+    "root_camcorder": "",
+    "size_limit": 2124000000
 }
 
 
@@ -45,6 +46,9 @@ def validate_preferences(preferences):
     if not isinstance(preferences.get('root_camcorder'), str):
         print_color.yellow(f"Invalid root camcorder path (must be a string). Using default preference: {DEFAULT_PREFERENCES['root_camcorder']}.")
         preferences['root_camcorder'] = DEFAULT_PREFERENCES['root_camcorder']
+    if not isinstance(preferences.get('size_limit'), int):
+        print_color.yellow(f"Invalid size limit (must be a number (bytes)). Using default preference: {DEFAULT_PREFERENCES['size_limit']}.")
+        preferences['size_limit'] = DEFAULT_PREFERENCES['size_limit']
     return preferences
 
 def preferences_routine():
