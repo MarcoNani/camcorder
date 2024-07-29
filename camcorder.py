@@ -15,11 +15,6 @@ EXTENSION = ".MTS"
 
 
 
-# global variables
-
-
-
-
 # FUNCTIONS
 def main():
 
@@ -64,14 +59,14 @@ def main():
 
 
 
-
-
                 if os.path.getsize(video_path) > current_preferences["size_limit"]:
                     to_be_concatenated.append(video_path)
                     hash_to_be_concatenated.append(hash_file)
 
                     if current_preferences["in_debug_mode"]:
                         print_color.purple(f"The file {video_path} have been recognized as part of a splitted video, added to the concatenation list")
+                    else:
+                        print(f"{os.path.basename(video_path)}: part of a splitted video")
                 else:
                     if len(to_be_concatenated) > 0:
                         to_be_concatenated.append(video_path)
@@ -79,6 +74,8 @@ def main():
 
                         if current_preferences["in_debug_mode"]:
                             print_color.purple(f"The file {video_path} have been recognized as the final part of a splitted video, added to the concatenation list")
+                        else:
+                            print(f"{os.path.basename(video_path)}: final part of a splitted video")
 
                         # concatenate the files in to_be_concatenated with the output in the destination folder
                         video.concat(to_be_concatenated, current_preferences["destination_folder"], hash_to_be_concatenated, COPIED_FILES_LOG, current_preferences["in_debug_mode"])
@@ -95,6 +92,8 @@ def main():
 
     # save the preferences
     preferences.save_preferences(current_preferences)
+    if current_preferences["in_debug_mode"]:
+        print_color.purple("Preferences saved to file.")
 
 if __name__ == "__main__":
     main()

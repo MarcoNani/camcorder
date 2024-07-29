@@ -140,9 +140,6 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
 
 
 def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_log_file, in_debug_mode=False):
-
-    
-
     if in_debug_mode:
         print_color.purple(f"Video files to concatenate: {video_files}")
 
@@ -151,29 +148,33 @@ def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_
     # Get the output file name from the last modification date of the last file in the list of files to concatenate
     output_file_name = obtain_modification_date(video_files[-1]) + extension
 
-
-
-    # Creare un file di testo temporaneo
+    # Create a temporary text file
     with open('filelist.txt', 'w') as f:
         for video_file in video_files:
-            # Scrivi ciascun file di input nel file di testo
+            # Write each input file to the text file
             f.write(f"file '{video_file}'\n")
 
-
     print("Concatenating the videos...")
+    # Use ffmpeg to concatenate the videos listed in the text file
+    if in_debug_mode:
+        print_color.purple("Output of the ffmpeg command:")
+        (
+            ffmpeg
+            .input('filelist.txt', format='concat', safe=0)
+            .output(os.path.join(output_directory, output_file_name), c='copy')  # Use direct copy of codecs
+            .run(overwrite_output=True)
+        )
+        print_color.purple("End of the output of ffmpeg command:")
+    else:
+        (
+            ffmpeg
+            .input('filelist.txt', format='concat', safe=0)
+            .output(os.path.join(output_directory, output_file_name), c='copy')  # Use direct copy of codecs
+            .run(overwrite_output=True, quiet=True)
+        )
 
-    # Utilizza ffmpeg per concatenare i video elencati nel file di testo
-    (
-        ffmpeg
-        .input('filelist.txt', format='concat', safe=0)
-        .output(os.path.join(output_directory, output_file_name), c='copy')  # Utilizza la copia diretta dei codec
-        .run(overwrite_output=True, quiet=True)
-    )
-
-    # Rimuovere il file di testo temporaneo
+    # Remove the temporary text file
     os.remove('filelist.txt')
-
-
 
 
     print_color.green(f"The videos have been concatenated into {os.path.join(output_directory, output_file_name)}")

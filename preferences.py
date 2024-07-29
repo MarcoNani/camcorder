@@ -55,14 +55,14 @@ def preferences_routine():
     current_preferences = load_preferences()
 
     if current_preferences["in_debug_mode"]:
-        print("Current preferences:")
-        print(current_preferences)
+        print_color.purple("Current preferences:")
+        print_color.purple(current_preferences)
 
     current_preferences = validate_preferences(current_preferences)
 
     if current_preferences["in_debug_mode"]:
-        print("Validated preferences:")
-        print(current_preferences)
+        print_color.purple("Validated preferences:")
+        print_color.purple(current_preferences)
 
     if current_preferences["root_camcorder"] == "":
         print_color.red("The root camcorder path is not set in the preferences file.")
