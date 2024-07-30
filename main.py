@@ -81,7 +81,7 @@ def on_open():
 
 def about():
     """Show an 'About' message."""
-    messagebox.showinfo("Information", "Application created by Marco Nani.\n\nFor more information visit:\nwww.example.com")
+    messagebox.showinfo("Information", "Application created by Marco Nani.\n\nFor more information visit:\ngithub.com/MarcoNani/camcorder")
 
 def open_root_camcorder_folder():
     """Open the root camcorder folder in the file explorer."""
@@ -215,7 +215,7 @@ file_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="File", menu=file_menu)
 file_menu.add_command(label="Open root camcorder folder in the file explorer", command=open_root_camcorder_folder)
 file_menu.add_command(label="Open destination folder in the file explorer", command=open_destination_folder)
-file_menu.add_command(label="Open the preference file in explorer", command=open_preferences_file)
+file_menu.add_command(label="Open the preference file", command=open_preferences_file)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_exit)
 
