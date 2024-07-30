@@ -3,9 +3,26 @@ from tkinter import messagebox, filedialog
 import os
 import preferences
 import camcorder
+import sys
 
 # Initialize global variable
 current_preferences = {}
+
+# Custom Text widget to capture stdout
+class RedirectText(tk.Text):
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs)
+        self.configure(state=tk.DISABLED)
+        
+    def write(self, text):
+        self.configure(state=tk.NORMAL)
+        self.insert(tk.END, text)
+        self.configure(state=tk.DISABLED)
+        self.yview(tk.END)  # Scroll to the end
+    
+    def flush(self):
+        # No-op for compatibility
+        pass
 
 # FUNCTIONS
 
@@ -106,7 +123,6 @@ def start_transfer():
 
     preferences_ok = True
 
-
     # check the correctness of the preferences:
 
     # Check if the root camcorder folder is set
@@ -134,7 +150,6 @@ def start_transfer():
         preferences_ok = False
         messagebox.showerror("Error", "The size limit must be a number.")
         return
-    
 
     if preferences_ok:
         print("Preferences are ok")
@@ -153,7 +168,6 @@ def start_transfer():
         button_start_transfer.config(state=tk.DISABLED)
         camcorder.start_transfer()
         button_start_transfer.config(state=tk.NORMAL)
-    
 
     else:
         print("Preferences are not ok")
@@ -166,11 +180,9 @@ def start_transfer():
 
 
 
-
 # Create the root window (the main window of the application)
 root = tk.Tk()
 root.title("Camcorder")
-
 
 
 # --- MENU BAR ---
@@ -195,7 +207,6 @@ menu_bar.add_cascade(label="Help", menu=help_menu)
 help_menu.add_command(label="About", command=about)
 
 
-
 # --- WIDGETS ---
 # columnconfigure and rowconfigure are used to configure the grid layout
 root.columnconfigure(0, minsize=100)
@@ -211,7 +222,6 @@ root.rowconfigure(6, minsize=50)
 root.rowconfigure(7, minsize=50)
 root.rowconfigure(8, minsize=50)
 root.rowconfigure(9, minsize=50)
-
 
 # --- 1° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
@@ -265,10 +275,16 @@ button_start_transfer = tk.Button(root, text="Start transfer", command=start_tra
 button_start_transfer.grid(row=6, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
 
 # --- 8° ROW ---
+label_output = tk.Label(root, text="Output:")
+label_output.grid(row=7, column=0, columnspan=3, sticky="w", padx=10)
+
+output_text = RedirectText(root, height=10, width=80)
+output_text.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
 
 
-
-
+# Redirect stdout and stderr to the Text widget
+sys.stdout = output_text
+sys.stderr = output_text
 
 # Load preferences on application start
 on_open()
