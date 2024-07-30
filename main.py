@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, filedialog
+from tkinter import messagebox, filedialog, ttk
 import os
 import preferences
 import camcorder
@@ -29,6 +29,10 @@ class RedirectText(tk.Text):
         pass
 
 # FUNCTIONS
+
+def update_progress(value):
+    """Function to update the progress bar."""
+    progress_bar['value'] = value
 
 # -- menu functions and preferences --
 def on_exit():
@@ -170,8 +174,11 @@ def start_transfer():
         print("Starting the transfer...")
 
         button_start_transfer.config(state=tk.DISABLED)
-        camcorder.start_transfer()
+        update_progress(0) # reset the progress bar
+        camcorder.start_transfer(update_progress)
         button_start_transfer.config(state=tk.NORMAL)
+
+
 
     else:
         print("Preferences are not ok")
@@ -226,6 +233,7 @@ root.rowconfigure(6, minsize=50)
 root.rowconfigure(7, minsize=50)
 root.rowconfigure(8, minsize=50)
 root.rowconfigure(9, minsize=50)
+root.rowconfigure(10, minsize=50)
 
 # --- 1° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
@@ -284,6 +292,19 @@ label_output.grid(row=7, column=0, columnspan=3, sticky="w", padx=10)
 
 output_text = RedirectText(root, height=10, width=80)
 output_text.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
+
+# --- 9° ROW ---
+# Label to display the percentage of progress
+progress_label = tk.Label(root, text="not started yet", anchor='center')
+progress_label.grid(row=9, column=0, columnspan=3)
+
+# --- 10° ROW ---
+# Add a progress bar
+global progress_bar
+progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+
+
 
 
 # Redirect stdout and stderr to the Text widget

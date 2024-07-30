@@ -16,7 +16,11 @@ EXTENSION = ".MTS"
 
 
 # FUNCTIONS
-def start_transfer():
+def to_integer_for_progressbar(current_video, total_videos, min_value=0, max_value=100):
+    return min_value + int((max_value - min_value) * current_video / total_videos)
+
+
+def start_transfer(update_progress=None):
 
     global to_be_concatenated
     to_be_concatenated = []
@@ -39,6 +43,7 @@ def start_transfer():
 
     # calculate the ash of every file and copy the ones that haven't been copied yet
     print("Calculating the hash of the files...")
+
     for video_path in video_files:
         hash_file = video.calculate_file_hash(video_path, 'sha256')
         if current_preferences["in_debug_mode"]:
@@ -86,6 +91,9 @@ def start_transfer():
                         video.copy_file(video_path, current_preferences["destination_folder"], hash_file, COPIED_FILES_LOG, current_preferences["in_secure_mode"], current_preferences["in_debug_mode"])
                         # rename the copied video file in a descriptive way (based on the date and time of the video (YYYY-MM-DD_HH-MM-SS.MTS))
                         video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+
+        if update_progress:
+            update_progress(to_integer_for_progressbar(video_files.index(video_path)+1, len(video_files)))
 
 
 
