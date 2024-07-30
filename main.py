@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import os
 import preferences
+import camcorder
 
 # Initialize global variable
 current_preferences = {}
@@ -25,6 +26,13 @@ def on_open():
 
     entry_destination_folder.delete(0, tk.END)
     entry_destination_folder.insert(0, current_preferences["destination_folder"])
+
+    entry_in_secure_mode.select() if current_preferences["in_secure_mode"] else entry_in_secure_mode.deselect()
+
+    entry_in_debug_mode.select() if current_preferences["in_debug_mode"] else entry_in_debug_mode.deselect()
+
+    entry_size_limit.delete(0, tk.END)
+    entry_size_limit.insert(0, current_preferences["size_limit"])
 
 
 
@@ -74,6 +82,8 @@ def select_root_camcorder_folder():
     """Function to select the root camcorder folder."""
     folder_path = filedialog.askdirectory()
     if folder_path:
+        if os.name == "nt":
+            folder_path = folder_path.replace("/", "\\")
         entry_root_camcorder.delete(0, tk.END)
         entry_root_camcorder.insert(0, folder_path)
 
@@ -81,8 +91,81 @@ def select_destination_folder():
     """Function to select the destination folder."""
     folder_path = filedialog.askdirectory()
     if folder_path:
+        if os.name == "nt":
+            folder_path = folder_path.replace("/", "\\")
         entry_destination_folder.delete(0, tk.END)
         entry_destination_folder.insert(0, folder_path)
+
+
+# -- transfer function --
+def start_transfer():
+    """Function to start the transfer."""
+
+
+    # - preferences management -
+
+    preferences_ok = True
+
+
+    # check the correctness of the preferences:
+
+    # Check if the root camcorder folder is set
+    if current_preferences["root_camcorder"] == "":
+        preferences_ok = False
+        messagebox.showerror("Error", "The root camcorder folder is not set in the preferences.")
+        return
+
+    # Check if the destination folder is set
+    if current_preferences["destination_folder"] == "":
+        preferences_ok = False
+        messagebox.showerror("Error", "The destination folder is not set in the preferences.")
+        return
+
+    # Check if the root camcorder folder exists
+    if not os.path.isdir(current_preferences["root_camcorder"]):
+        preferences_ok = False
+        messagebox.showerror("Error", "The root camcorder folder does not exist.")
+        return
+
+    # Check if the destination folder exists
+    if not os.path.isdir(current_preferences["destination_folder"]):
+        preferences_ok = False
+        messagebox.showerror("Error", "The destination folder does not exist.")
+        return
+
+    # Check if the size limit is a number
+    try:
+        int(entry_size_limit.get())
+    except ValueError:
+        preferences_ok = False
+        messagebox.showerror("Error", "The size limit must be a number.")
+        return
+    
+
+    if preferences_ok:
+        print("Preferences are ok")
+        # Update the preferences with the values in the entries
+        current_preferences["root_camcorder"] = entry_root_camcorder.get()
+        current_preferences["destination_folder"] = entry_destination_folder.get()
+        current_preferences["in_secure_mode"] = var_in_secure_mode.get()
+        current_preferences["in_debug_mode"] = var_in_debug_mode.get()
+        current_preferences["size_limit"] = int(entry_size_limit.get())
+
+        # Save the preferences
+        preferences.save_preferences(current_preferences)
+
+        print("Starting the transfer...")
+    
+
+    else:
+        print("Preferences are not ok")
+        return
+
+    
+
+    # Transfer the files
+    
+
 
 
 
@@ -135,23 +218,57 @@ root.rowconfigure(9, minsize=50)
 
 # --- 1° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
-label_root_camcorder.grid(row=0, column=0, sticky="e")
+label_root_camcorder.grid(row=0, column=0, sticky="e", padx=10)
 
 entry_root_camcorder = tk.Entry(root)
-entry_root_camcorder.grid(row=0, column=1, sticky="ew")
+entry_root_camcorder.grid(row=0, column=1, sticky="ew", padx=10)
 
 button_root_camcorder = tk.Button(root, text="Select folder", command=select_root_camcorder_folder)
-button_root_camcorder.grid(row=0, column=2, sticky="w")
+button_root_camcorder.grid(row=0, column=2, sticky="w", padx=10)
 
 # --- 2° ROW ---
 label_destination_folder = tk.Label(root, text="Destination folder:")
-label_destination_folder.grid(row=1, column=0, sticky="e")
+label_destination_folder.grid(row=1, column=0, sticky="e", padx=10)
 
 entry_destination_folder = tk.Entry(root)
-entry_destination_folder.grid(row=1, column=1, sticky="ew")
+entry_destination_folder.grid(row=1, column=1, sticky="ew", padx=10)
 
 button_destination_folder = tk.Button(root, text="Select folder", command=select_destination_folder)
-button_destination_folder.grid(row=1, column=2, sticky="w")
+button_destination_folder.grid(row=1, column=2, sticky="w", padx=10)
+
+# --- 3° ROW ---
+label_advanced_settings = tk.Label(root, text="Advanced settings:", fg="blue")
+label_advanced_settings.grid(row=2, column=0, sticky="w", padx=10)
+
+# --- 4° ROW ---
+label_in_secure_mode = tk.Label(root, text="In secure mode:")
+label_in_secure_mode.grid(row=3, column=0, sticky="e", padx=10)
+
+var_in_secure_mode = tk.BooleanVar()
+entry_in_secure_mode = tk.Checkbutton(root, variable=var_in_secure_mode)
+entry_in_secure_mode.grid(row=3, column=1, sticky="w", padx=10)
+
+# --- 5° ROW ---
+label_in_debug_mode = tk.Label(root, text="In debug mode:")
+label_in_debug_mode.grid(row=4, column=0, sticky="e", padx=10)
+
+var_in_debug_mode = tk.BooleanVar()
+entry_in_debug_mode = tk.Checkbutton(root, variable=var_in_debug_mode)
+entry_in_debug_mode.grid(row=4, column=1, sticky="w", padx=10)
+
+# --- 6° ROW ---
+label_size_limit = tk.Label(root, text="Size limit:")
+label_size_limit.grid(row=5, column=0, sticky="e", padx=10)
+
+entry_size_limit = tk.Entry(root)
+entry_size_limit.grid(row=5, column=1, sticky="w", padx=10)
+
+# --- 7° ROW ---
+button_start_transfer = tk.Button(root, text="Start transfer", command=start_transfer)
+button_start_transfer.grid(row=6, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+
+# --- 8° ROW ---
+
 
 
 
