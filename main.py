@@ -127,12 +127,6 @@ def start_transfer():
         messagebox.showerror("Error", "The root camcorder folder does not exist.")
         return
 
-    # Check if the destination folder exists
-    if not os.path.isdir(current_preferences["destination_folder"]):
-        preferences_ok = False
-        messagebox.showerror("Error", "The destination folder does not exist.")
-        return
-
     # Check if the size limit is a number
     try:
         int(entry_size_limit.get())
@@ -164,7 +158,7 @@ def start_transfer():
     
 
     # Transfer the files
-    
+    camcorder.start_transfer()
 
 
 

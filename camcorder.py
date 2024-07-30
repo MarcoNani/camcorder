@@ -16,7 +16,7 @@ EXTENSION = ".MTS"
 
 
 # FUNCTIONS
-def main():
+def start_transfer():
 
     global to_be_concatenated
     to_be_concatenated = []
@@ -96,4 +96,4 @@ def main():
         print_color.purple("Preferences saved to file.")
 
 if __name__ == "__main__":
-    main()
+    start_transfer()
