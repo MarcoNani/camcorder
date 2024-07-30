@@ -51,7 +51,7 @@ def validate_preferences(preferences):
         preferences['size_limit'] = DEFAULT_PREFERENCES['size_limit']
     return preferences
 
-def preferences_routine():
+def preferences_routine(interactive=True):
     current_preferences = load_preferences()
 
     if current_preferences["in_debug_mode"]:
@@ -64,11 +64,12 @@ def preferences_routine():
         print_color.purple("Validated preferences:")
         print_color.purple(current_preferences)
 
-    if current_preferences["root_camcorder"] == "":
-        print_color.red("The root camcorder path is not set in the preferences file.")
-        print_color.red("Please set the root camcorder path in the preferences file or enter it now.")
-        # request of the root camcorder path
-        input_root_camcorder = input("Camcorder root path: ")
-        current_preferences["root_camcorder"] = input_root_camcorder
+    if interactive:
+        if current_preferences["root_camcorder"] == "":
+            print_color.red("The root camcorder path is not set in the preferences file.")
+            print_color.red("Please set the root camcorder path in the preferences file or enter it now.")
+            # request of the root camcorder path
+            input_root_camcorder = input("Camcorder root path: ")
+            current_preferences["root_camcorder"] = input_root_camcorder
     
     return current_preferences
