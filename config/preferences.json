@@ -1,7 +1,7 @@
 {
-    "destination_folder": "fs_sim_real/pc/destination",
+    "destination_folder": "fs_sim_real\\pc\\destination",
     "in_secure_mode": true,
     "in_debug_mode": false,
-    "root_camcorder": "fs_sim_real/camcorder",
+    "root_camcorder": "fs_sim_real\\camcorder",
     "size_limit": 19233664
 }
