@@ -15,13 +15,17 @@ class RedirectText(tk.Text):
         self.configure(state=tk.DISABLED)
         
     def write(self, text):
+        # Write on console
+        sys.__stdout__.write(text)
+
+        # Write on the text widget
         self.configure(state=tk.NORMAL)
         self.insert(tk.END, text)
         self.configure(state=tk.DISABLED)
         self.yview(tk.END)  # Scroll to the end
     
     def flush(self):
-        # No-op for compatibility
+        # Flushing is not needed for this application
         pass
 
 # FUNCTIONS
