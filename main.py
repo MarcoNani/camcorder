@@ -149,6 +149,10 @@ def start_transfer():
         preferences.save_preferences(current_preferences)
 
         print("Starting the transfer...")
+
+        button_start_transfer.config(state=tk.DISABLED)
+        camcorder.start_transfer()
+        button_start_transfer.config(state=tk.NORMAL)
     
 
     else:
@@ -157,8 +161,7 @@ def start_transfer():
 
     
 
-    # Transfer the files
-    camcorder.start_transfer()
+    
 
 
 
