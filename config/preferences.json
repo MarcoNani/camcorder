@@ -3,5 +3,5 @@
     "in_secure_mode": true,
     "in_debug_mode": false,
     "root_camcorder": "fs_sim_real\\camcorder",
-    "size_limit": 19233664
+    "size_limit": 2124000000
 }

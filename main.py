@@ -4,6 +4,7 @@ import os
 import preferences
 import camcorder
 import sys
+import threading
 
 # Initialize global variable
 current_preferences = {}
@@ -33,6 +34,23 @@ class RedirectText(tk.Text):
 def update_progress(value):
     """Function to update the progress bar."""
     progress_bar['value'] = value
+    # Update the percentage label
+    progress_label.config(text=f"{value:.0f}% completed")
+
+def threaded_transfer():
+    """Function to perform the transfer in a separate thread."""
+    def run_transfer():
+        try:
+            camcorder.start_transfer(update_progress)
+        except Exception as e:
+            messagebox.showerror("Error", f"Transfer failed: {e}")
+        finally:
+            # Re-enable the start button
+            button_start_transfer.config(state=tk.NORMAL)
+    
+    # Run the transfer function in a new thread
+    transfer_thread = threading.Thread(target=run_transfer)
+    transfer_thread.start()
 
 # -- menu functions and preferences --
 def on_exit():
@@ -125,13 +143,10 @@ def select_destination_folder():
 # -- transfer function --
 def start_transfer():
     """Function to start the transfer."""
-
-
     # - preferences management -
-
     preferences_ok = True
 
-    # check the correctness of the preferences:
+    # Check the correctness of the preferences:
 
     # Check if the root camcorder folder is set
     if current_preferences["root_camcorder"] == "":
@@ -173,28 +188,20 @@ def start_transfer():
 
         print("Starting the transfer...")
 
+        # Disable the button and reset progress
         button_start_transfer.config(state=tk.DISABLED)
         update_progress(0) # reset the progress bar
-        camcorder.start_transfer(update_progress)
-        button_start_transfer.config(state=tk.NORMAL)
 
-
+        # Start the transfer in a new thread
+        threaded_transfer()
 
     else:
         print("Preferences are not ok")
         return
 
-    
-
-    
-
-
-
-
 # Create the root window (the main window of the application)
 root = tk.Tk()
 root.title("Camcorder")
-
 
 # --- MENU BAR ---
 
@@ -216,7 +223,6 @@ file_menu.add_command(label="Exit", command=on_exit)
 help_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Help", menu=help_menu)
 help_menu.add_command(label="About", command=about)
-
 
 # --- WIDGETS ---
 # columnconfigure and rowconfigure are used to configure the grid layout
@@ -303,9 +309,6 @@ progress_label.grid(row=9, column=0, columnspan=3)
 global progress_bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
 progress_bar.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
-
-
-
 
 # Redirect stdout and stderr to the Text widget
 sys.stdout = output_text
