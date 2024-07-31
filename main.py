@@ -188,7 +188,6 @@ def select_destination_folder():
 def start_transfer():
     """Function to start the transfer."""
     # - preferences management -
-    preferences_ok = True
 
 
     # read the preferences from the GUI
@@ -196,7 +195,13 @@ def start_transfer():
     current_preferences["destination_folder"] = entry_destination_folder.get()
     current_preferences["in_secure_mode"] = var_in_secure_mode.get()
     current_preferences["in_debug_mode"] = var_in_debug_mode.get()
-    current_preferences["size_limit"] = int(entry_size_limit.get())
+
+    try:
+        current_preferences["size_limit"] = int(entry_size_limit.get()) # casting to int
+    except ValueError:
+        messagebox.showerror("Error", "Size limit must be a number.")
+        return
+
     current_preferences["H264_low"]["enabled"] = var_H264_low_enabled.get()
     current_preferences["H264_low"]["bitrate"] = entry_H264_low_bitrate.get()
     current_preferences["H264_high"]["enabled"] = var_H264_high_enabled.get()
@@ -205,12 +210,16 @@ def start_transfer():
     current_preferences["H265_VBR"]["CRF"] = entry_H265_CRF.get()
 
 
-    # TODO: call the function to control the correctivness of the preferences
+    # validate the preferences
+    errors = preferences.validate_preferences_for_gui(current_preferences)
 
+    if errors != []:
+        print("Preferences aren't Ok.")
+        errors = "\n\n".join(errors)
+        messagebox.showerror("Error", f"Some preferences are not valid. Please check the values.\n\n\nError list:\n\n{errors}")
+    else:
+        print("Preferences are Ok.")
 
-
-
-    if preferences_ok:
         # Save the preferences
         preferences.save_preferences(current_preferences)
 
@@ -223,9 +232,6 @@ def start_transfer():
 
         # Start the transfer in a new thread
         threaded_transfer()
-    else:
-        messagebox.showerror("Error", "Some preferences are not valid. Please check the values.")
-        return
 
 
 
@@ -266,6 +272,8 @@ help_menu.add_command(label="About", command=about)
 #root.columnconfigure(5, minsize=100)
 #root.columnconfigure(6, minsize=100)
 
+root.rowconfigure(2, minsize=30) # to make the row with the title of the preferences bigger
+
 
 # --- 0° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
@@ -292,11 +300,11 @@ button_destination_folder.grid(row=1, column=6, sticky="w", padx=10)
 
 
 # --- 2° ROW ---
-label_advanced_settings = tk.Label(root, text="Advanced settings:", fg="blue") # TODO: make the text bigger
-label_advanced_settings.grid(row=2, column=0, sticky="w", padx=10)
+label_advanced_settings = tk.Label(root, text="Advanced settings:", fg="blue", font=("bold"))
+label_advanced_settings.grid(row=2, column=0, sticky="ws", padx=10)
 
-label_transcoding_settings = tk.Label(root, text="Transcoding settings:", fg="blue") # TODO: make the text bigger
-label_transcoding_settings.grid(row=2, column=4, sticky="w", padx=10)
+label_transcoding_settings = tk.Label(root, text="Transcoding settings:", fg="blue", font=("bold"))
+label_transcoding_settings.grid(row=2, column=4, sticky="ws", padx=10)
 
 
 
