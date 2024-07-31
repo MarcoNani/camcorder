@@ -22,6 +22,8 @@ def to_integer_for_progressbar(current_video, total_videos, min_value=0, max_val
 
 def start_transfer(update_progress=None):
 
+    transferred_videos = [] # list of the videos that have been transferred
+
     global to_be_concatenated
     to_be_concatenated = []
     global hash_to_be_concatenated
@@ -83,18 +85,21 @@ def start_transfer(update_progress=None):
                             print(f"{os.path.basename(video_path)}: final part of a splitted video")
 
                         # concatenate the files in to_be_concatenated with the output in the destination folder
-                        video.concat(to_be_concatenated, current_preferences["destination_folder"], hash_to_be_concatenated, COPIED_FILES_LOG, current_preferences["in_debug_mode"])
+                        transferred_video = video.concat(to_be_concatenated, current_preferences["destination_folder"], hash_to_be_concatenated, COPIED_FILES_LOG, current_preferences["in_debug_mode"])
+
+                        transferred_videos.append(transferred_video) # add the transferred video to the list of transferred videos
 
                         to_be_concatenated = [] # reset the list of files to be concatenated
                         hash_to_be_concatenated = [] # reset the list of hash of the files to be concatenated
                     else:
                         video.copy_file(video_path, current_preferences["destination_folder"], hash_file, COPIED_FILES_LOG, current_preferences["in_secure_mode"], current_preferences["in_debug_mode"])
                         # rename the copied video file in a descriptive way (based on the date and time of the video (YYYY-MM-DD_HH-MM-SS.MTS))
-                        video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+                        transferred_video = video.rename_copied_file(os.path.basename(video_path), current_preferences["destination_folder"], current_preferences["in_debug_mode"])
+
+                        transferred_videos.append(transferred_video) # add the transferred video to the list of transferred videos
 
         if update_progress:
             update_progress(to_integer_for_progressbar(video_files.index(video_path)+1, len(video_files)))
-
 
 
 
@@ -102,6 +107,11 @@ def start_transfer(update_progress=None):
     preferences.save_preferences(current_preferences)
     if current_preferences["in_debug_mode"]:
         print_color.purple("Preferences saved to file.")
+
+    if current_preferences["in_debug_mode"]:
+        print_color.purple(f"Transferred videos: {transferred_videos}")
+
+    return transferred_videos
 
 if __name__ == "__main__":
     start_transfer()

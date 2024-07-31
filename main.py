@@ -3,6 +3,7 @@ from tkinter import messagebox, filedialog, ttk
 import os
 import preferences
 import camcorder
+import video
 import sys
 import threading
 
@@ -35,16 +36,43 @@ def update_progress(value):
     """Function to update the progress bar."""
     progress_bar['value'] = value
     # Update the percentage label
-    progress_label.config(text=f"{value:.0f}% completed")
+    progress_label.config(text=f"Transferring the files: {value:.0f}% completed")
+
+def update_H264_low_progress(value):
+    """Function to update the progress bar."""
+    progress_bar_h264_4M['value'] = value
+    # Update the percentage label
+    label_progress_h264_4M.config(text=f"Transcoding to H264 low bitrate: {value:.0f}% completed")
+
+def update_H264_high_progress(value):
+    """Function to update the progress bar."""
+    progress_bar_h264_8M['value'] = value
+    # Update the percentage label
+    label_progress_h264_8M.config(text=f"Transcoding to H264 high bitrate: {value:.0f}% completed")
+
+def update_H265_progress(value):
+    """Function to update the progress bar."""
+    progress_bar_h265_CRF_23['value'] = value
+    # Update the percentage label
+    label_progress_h265_CRF_23.config(text=f"Transcoding to H265 variable bitrate: {value:.0f}% completed")
+
+
 
 def threaded_transfer():
     """Function to perform the transfer in a separate thread."""
     def run_transfer():
+        to_be_transcoded = [] # list of videos to be transcoded
         try:
-            camcorder.start_transfer(update_progress)
+            to_be_transcoded = camcorder.start_transfer(update_progress)
         except Exception as e:
             messagebox.showerror("Error", f"Transfer failed: {e}")
         finally:
+            # transcode the videos
+            if to_be_transcoded:
+                # call the function to transcode the videos
+                video.transcode_list_of_videos(to_be_transcoded, bitrate_H264_low="4M", bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=update_H264_low_progress, update_H264_high_progress=update_H264_high_progress, update_H265_progress=update_H265_progress, overwrite=False, in_debug_mode=current_preferences["in_debug_mode"])
+
+
             # Re-enable the start button
             button_start_transfer.config(state=tk.NORMAL)
     
@@ -304,19 +332,20 @@ output_text = RedirectText(root, height=10, width=80)
 output_text.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
 
 # --- 9° ROW ---
-# Label to display the percentage of progress
-progress_label = tk.Label(root, text="not started yet", anchor='center')
-progress_label.grid(row=9, column=0, columnspan=3)
+# some empty space
 
 # --- 10° ROW ---
 # Add a progress bar
+# Label to display the percentage of progress
+progress_label = tk.Label(root, text="Transferring the files: not started", anchor='center')
+progress_label.grid(row=10, column=0, sticky="e", padx=10)
 global progress_bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+progress_bar.grid(row=10, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
 
 # --- 11° ROW ---
 # label to display what type of transcode is being done
-label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 8M: not started", anchor='center')
+label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 low bitrate: not started", anchor='center')
 label_progress_h264_8M.grid(row=11, column=0, sticky="e", padx=10)
 global progress_bar_h264_8M
 progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
@@ -324,7 +353,7 @@ progress_bar_h264_8M.grid(row=11, column=1, columnspan=2, sticky="ew", padx=10, 
 
 # --- 12° ROW ---
 # label to display what type of transcode is being done
-label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 4M: not started", anchor='center')
+label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 high bitrate: not started", anchor='center')
 label_progress_h264_4M.grid(row=12, column=0, sticky="e", padx=10)
 global progress_bar_h264_4M
 progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
@@ -332,7 +361,7 @@ progress_bar_h264_4M.grid(row=12, column=1, columnspan=2, sticky="ew", padx=10, 
 
 # --- 13° ROW ---
 # label to display what type of transcode is being done
-label_progress_h265_CRF_23 = tk.Label(root, text="Transcoding to H265 CRF 23: not started", anchor='center')
+label_progress_h265_CRF_23 = tk.Label(root, text="Transcoding to H265 variable bitrate: not started", anchor='center')
 label_progress_h265_CRF_23.grid(row=13, column=0, sticky="e", padx=10)
 global progress_bar_h265_CRF_23
 progress_bar_h265_CRF_23 = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)

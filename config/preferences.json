@@ -1,7 +1,7 @@
 {
     "destination_folder": "fs_sim_real\\pc\\destination",
     "in_secure_mode": false,
-    "in_debug_mode": false,
-    "root_camcorder": "F:\\",
+    "in_debug_mode": true,
+    "root_camcorder": "C:\\Users\\mache\\Repos\\camcorder\\fs_sim_real\\camcorder",
     "size_limit": 2124000000
 }

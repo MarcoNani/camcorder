@@ -139,6 +139,8 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
     if in_debug_mode:
         print_color.green(f"The file has been renamed to {new_file_name}")
 
+    return new_file_path
+
 
 
 def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_log_file, in_debug_mode=False):
@@ -187,6 +189,8 @@ def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_
             file.write(hash_file + "\n")
             if in_debug_mode:
                 print_color.purple(f"The hash {hash_file} has been added to the copied files log")
+    
+    return os.path.join(output_directory, output_file_name)
 
 
 
