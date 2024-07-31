@@ -240,6 +240,10 @@ root.rowconfigure(7, minsize=50)
 root.rowconfigure(8, minsize=50)
 root.rowconfigure(9, minsize=50)
 root.rowconfigure(10, minsize=50)
+# progressbar codification
+root.rowconfigure(11, minsize=50)
+root.rowconfigure(12, minsize=50)
+root.rowconfigure(13, minsize=50)
 
 # --- 1° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
@@ -309,6 +313,31 @@ progress_label.grid(row=9, column=0, columnspan=3)
 global progress_bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
 progress_bar.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+
+# --- 11° ROW ---
+# label to display what type of transcode is being done
+label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 8M: not started", anchor='center')
+label_progress_h264_8M.grid(row=11, column=0, sticky="e", padx=10)
+global progress_bar_h264_8M
+progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar_h264_8M.grid(row=11, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+
+# --- 12° ROW ---
+# label to display what type of transcode is being done
+label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 4M: not started", anchor='center')
+label_progress_h264_4M.grid(row=12, column=0, sticky="e", padx=10)
+global progress_bar_h264_4M
+progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar_h264_4M.grid(row=12, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+
+# --- 13° ROW ---
+# label to display what type of transcode is being done
+label_progress_h265_CRF_23 = tk.Label(root, text="Transcoding to H265 CRF 23: not started", anchor='center')
+label_progress_h265_CRF_23.grid(row=13, column=0, sticky="e", padx=10)
+global progress_bar_h265_CRF_23
+progress_bar_h265_CRF_23 = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar_h265_CRF_23.grid(row=13, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+
 
 # Redirect stdout and stderr to the Text widget
 sys.stdout = output_text
