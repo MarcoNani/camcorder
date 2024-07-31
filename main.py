@@ -256,36 +256,50 @@ help_menu.add_command(label="About", command=about)
 
 # --- WIDGETS ---
 # columnconfigure and rowconfigure are used to configure the grid layout
-root.columnconfigure(0, minsize=100)
-root.columnconfigure(1, minsize=500)
-root.columnconfigure(2, minsize=100)
+#root.columnconfigure(0, minsize=100)
+#root.columnconfigure(1, minsize=100)
+#root.columnconfigure(2, minsize=100)
+#root.columnconfigure(3, minsize=100)
+#root.columnconfigure(4, minsize=100)
+#root.columnconfigure(5, minsize=100)
+#root.columnconfigure(6, minsize=100)
 
 
-# --- 1° ROW ---
+# --- 0° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
 label_root_camcorder.grid(row=0, column=0, sticky="e", padx=10)
 
 entry_root_camcorder = tk.Entry(root)
-entry_root_camcorder.grid(row=0, column=1, sticky="ew", padx=10)
+entry_root_camcorder.grid(row=0, column=1, columnspan=5, sticky="ew", padx=10)
 
 button_root_camcorder = tk.Button(root, text="Select folder", command=select_root_camcorder_folder)
-button_root_camcorder.grid(row=0, column=2, sticky="w", padx=10)
+button_root_camcorder.grid(row=0, column=6, sticky="w", padx=10)
 
-# --- 2° ROW ---
+
+
+# --- 1° ROW ---
 label_destination_folder = tk.Label(root, text="Destination folder:")
 label_destination_folder.grid(row=1, column=0, sticky="e", padx=10)
 
 entry_destination_folder = tk.Entry(root)
-entry_destination_folder.grid(row=1, column=1, sticky="ew", padx=10)
+entry_destination_folder.grid(row=1, column=1, columnspan=5, sticky="ew", padx=10)
 
 button_destination_folder = tk.Button(root, text="Select folder", command=select_destination_folder)
-button_destination_folder.grid(row=1, column=2, sticky="w", padx=10)
+button_destination_folder.grid(row=1, column=6, sticky="w", padx=10)
 
-# --- 3° ROW ---
-label_advanced_settings = tk.Label(root, text="Advanced settings:", fg="blue")
+
+
+# --- 2° ROW ---
+label_advanced_settings = tk.Label(root, text="Advanced settings:", fg="blue") # TODO: make the text bigger
 label_advanced_settings.grid(row=2, column=0, sticky="w", padx=10)
 
-# --- 4° ROW ---
+label_transcoding_settings = tk.Label(root, text="Transcoding settings:", fg="blue") # TODO: make the text bigger
+label_transcoding_settings.grid(row=2, column=4, sticky="w", padx=10)
+
+
+
+# --- 3° ROW ---
+# Advanced settings
 label_in_secure_mode = tk.Label(root, text="In secure mode:")
 label_in_secure_mode.grid(row=3, column=0, sticky="e", padx=10)
 
@@ -293,7 +307,22 @@ var_in_secure_mode = tk.BooleanVar()
 entry_in_secure_mode = tk.Checkbutton(root, variable=var_in_secure_mode)
 entry_in_secure_mode.grid(row=3, column=1, sticky="w", padx=10)
 
-# --- 5° ROW ---
+
+# Transcoding settings
+label_H264_low = tk.Label(root, text="H264 low bitrate:")
+label_H264_low.grid(row=3, column=4, sticky="e", padx=10)
+
+var_H264_low_enabled = tk.BooleanVar()
+entry_H264_low_enabled = tk.Checkbutton(root, variable=var_H264_low_enabled)
+entry_H264_low_enabled.grid(row=3, column=5, sticky="w", padx=10)
+
+entry_H264_low_bitrate = tk.Entry(root)
+entry_H264_low_bitrate.grid(row=3, column=6, columnspan=5, sticky="ew", padx=10)
+
+
+
+# --- 4° ROW ---
+# Advanced settings
 label_in_debug_mode = tk.Label(root, text="In debug mode:")
 label_in_debug_mode.grid(row=4, column=0, sticky="e", padx=10)
 
@@ -301,59 +330,98 @@ var_in_debug_mode = tk.BooleanVar()
 entry_in_debug_mode = tk.Checkbutton(root, variable=var_in_debug_mode)
 entry_in_debug_mode.grid(row=4, column=1, sticky="w", padx=10)
 
-# --- 6° ROW ---
+
+# Transcoding settings
+label_H264_high = tk.Label(root, text="H264 high bitrate:")
+label_H264_high.grid(row=4, column=4, sticky="e", padx=10)
+
+var_H264_high_enabled = tk.BooleanVar()
+entry_H264_high_enabled = tk.Checkbutton(root, variable=var_H264_high_enabled)
+entry_H264_high_enabled.grid(row=4, column=5, sticky="w", padx=10)
+
+entry_H264_high_bitrate = tk.Entry(root)
+entry_H264_high_bitrate.grid(row=4, column=6, columnspan=5, sticky="ew", padx=10)
+
+
+
+# --- 5° ROW ---
+# Advanced settings
 label_size_limit = tk.Label(root, text="Size limit:")
 label_size_limit.grid(row=5, column=0, sticky="e", padx=10)
 
 entry_size_limit = tk.Entry(root)
 entry_size_limit.grid(row=5, column=1, sticky="w", padx=10)
 
-# --- 10° ROW ---
+
+# Transcoding settings
+label_H265 = tk.Label(root, text="H265 variable bitrate CRF:")
+label_H265.grid(row=5, column=4, sticky="e", padx=10)
+
+var_H265_enabled = tk.BooleanVar()
+entry_H265_enabled = tk.Checkbutton(root, variable=var_H265_enabled)
+entry_H265_enabled.grid(row=5, column=5, sticky="w", padx=10)
+
+entry_H265_CRF = tk.Entry(root)
+entry_H265_CRF.grid(row=5, column=6, columnspan=5, sticky="ew", padx=10)
+
+
+
+# --- 6° ROW ---
 button_start_transfer = tk.Button(root, text="Start transfer", command=start_transfer)
-button_start_transfer.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+button_start_transfer.grid(row=6, column=0, columnspan=7, sticky="ew", padx=10, pady=10)
 
-# --- 11° ROW ---
+
+
+# --- 7° ROW ---
 label_output = tk.Label(root, text="Output:")
-label_output.grid(row=11, column=0, columnspan=3, sticky="w", padx=10)
+label_output.grid(row=7, column=0, sticky="w", padx=10)
 
+
+
+# --- 8° ROW ---
 output_text = RedirectText(root, height=10, width=80)
-output_text.grid(row=12, column=0, columnspan=3, padx=10, pady=10)
+output_text.grid(row=8, column=0, columnspan=7, padx=10, pady=10)
 
-# --- 12° ROW ---
-# some empty space
 
-# --- 13° ROW ---
+
+# --- 9° ROW ---
 # Add a progress bar
 # Label to display the percentage of progress
 progress_label = tk.Label(root, text="Transferring the files: not started", anchor='center')
-progress_label.grid(row=13, column=0, sticky="e", padx=10)
+progress_label.grid(row=9, column=0, columnspan=2, sticky="e", padx=10)
 global progress_bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar.grid(row=13, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar.grid(row=9, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
-# --- 14° ROW ---
+
+
+# --- 10° ROW ---
 # label to display what type of transcode is being done
 label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 low bitrate: not started", anchor='center')
-label_progress_h264_8M.grid(row=14, column=0, sticky="e", padx=10)
+label_progress_h264_8M.grid(row=10, column=0, columnspan=2, sticky="e", padx=10)
 global progress_bar_h264_8M
 progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_8M.grid(row=14, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h264_8M.grid(row=10, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
-# --- 15° ROW ---
+
+
+# --- 11° ROW ---
 # label to display what type of transcode is being done
 label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 high bitrate: not started", anchor='center')
-label_progress_h264_4M.grid(row=15, column=0, sticky="e", padx=10)
+label_progress_h264_4M.grid(row=11, column=0, columnspan=2, sticky="e", padx=10)
 global progress_bar_h264_4M
 progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_4M.grid(row=15, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h264_4M.grid(row=11, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
-# --- 16° ROW ---
+
+
+# --- 12° ROW ---
 # label to display what type of transcode is being done
 label_progress_h265_CRF_23 = tk.Label(root, text="Transcoding to H265 variable bitrate: not started", anchor='center')
-label_progress_h265_CRF_23.grid(row=16, column=0, sticky="e", padx=10)
+label_progress_h265_CRF_23.grid(row=12, column=0, columnspan=2, sticky="e", padx=10)
 global progress_bar_h265_CRF_23
 progress_bar_h265_CRF_23 = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h265_CRF_23.grid(row=16, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h265_CRF_23.grid(row=12, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
 
 
