@@ -140,6 +140,9 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
         print_color.green(f"The file has been renamed to {new_file_name}")
 
 
+############################################################################################################
+
+
 def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_debug_mode=False):
     # Get the file name and the extension
     file_name = os.path.basename(input_video_path)
@@ -170,7 +173,6 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
     # Set the log level to suppress stdout only if not in debug mode
     if not in_debug_mode:
         command.insert(1, '-loglevel')
-        command.insert(2, 'error')  # Show errors only
 
     print("Transcoding the video...")
     try:
@@ -215,7 +217,6 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
     # Set the log level to suppress stdout only if not in debug mode
     if not in_debug_mode:
         command.insert(1, '-loglevel')
-        command.insert(2, 'error')  # Show errors only
 
     print("Transcoding the video...")
     try:
@@ -232,57 +233,47 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
 
 
 def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, in_debug_mode=False):
-    
-    # function that transcode all the videos in the list_of_videos to H264
-    def transcode_H264_fixed(list_of_videos, bitrate, update_progress=None, in_debug_mode=False):
-        # calculate the output directory
-        source_directory = os.path.dirname(list_of_videos[0])
-        output_directory = os.path.join(source_directory, "transcoded_videos", f"H264_{bitrate}bps")
-
-        # Check if the output directory exists, if not create it
+    def transcode_H264_fixed_videos(videos, bitrate, update_progress=None):
+        source_directory = os.path.dirname(videos[0])
+        sub_directory = os.path.join("transcoded_videos", f"H264_{bitrate}bps")
+        output_directory = os.path.join(source_directory, sub_directory)
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
-        for video in list_of_videos:
+        for video in videos:
             transcode_H264_fixed(video, output_directory, bitrate, in_debug_mode)
             if update_progress:
-                current_progress = ((list_of_videos.index(video) + 1) / len(list_of_videos)) * 100
+                current_progress = ((videos.index(video) + 1) / len(videos)) * 100
                 update_progress(current_progress)
 
-
-    # function that transcode all the videos in the list_of_videos to H265
-    def transcode_H265(list_of_videos, CRF, update_progress=None, in_debug_mode=False):
-        # calculate the output directory
-        source_directory = os.path.dirname(list_of_videos[0])
-        output_directory = os.path.join(source_directory, "transcoded_videos", f"H264_CRF{CRF}")
-
-        # Check if the output directory exists, if not create it
+    def transcode_H265_videos(videos, CRF, update_progress=None):
+        source_directory = os.path.dirname(videos[0])
+        sub_directory = os.path.join("transcoded_videos", f"H265_CRF{CRF}")
+        output_directory = os.path.join(source_directory, sub_directory)
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
-        for video in list_of_videos:
+        for video in videos:
             transcode_H265_CRF(video, output_directory, CRF, in_debug_mode)
             if update_progress:
-                current_progress = ((list_of_videos.index(video) + 1) / len(list_of_videos)) * 100
+                current_progress = ((videos.index(video) + 1) / len(videos)) * 100
                 update_progress(current_progress)
-    
 
-    # create the threads for the transcoding
-    thread_H264_low = threading.Thread(target=transcode_H264_fixed, args=(list_of_videos, bitrate_H264_low, update_H264_low_progress, in_debug_mode))
-    thread_H264_high = threading.Thread(target=transcode_H264_fixed, args=(list_of_videos, bitrate_H264_high, update_H264_high_progress, in_debug_mode))
-    thread_H265 = threading.Thread(target=transcode_H265, args=(list_of_videos, CRF_H265, update_H265_progress, in_debug_mode))
+    thread_H264_low = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_low, update_H264_low_progress))
+    thread_H264_high = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_high, update_H264_high_progress))
+    thread_H265 = threading.Thread(target=transcode_H265_videos, args=(list_of_videos, CRF_H265, update_H265_progress))
 
-    # start the threads
     thread_H264_low.start()
     thread_H264_high.start()
     thread_H265.start()
 
-    # wait for the threads to finish
     thread_H264_low.join()
     thread_H264_high.join()
     thread_H265.join()
 
     print_color.green("All the videos have been transcoded successfully.")
+
+
 
 
 
