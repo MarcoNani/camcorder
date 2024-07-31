@@ -91,7 +91,7 @@ def on_open():
     # Load the preferences
     current_preferences = preferences.preferences_routine()
 
-    # populate the entry with the preferences
+    # populate the GUI with the preferences
     entry_root_camcorder.delete(0, tk.END)
     entry_root_camcorder.insert(0, current_preferences["root_camcorder"])
 
@@ -104,6 +104,20 @@ def on_open():
 
     entry_size_limit.delete(0, tk.END)
     entry_size_limit.insert(0, current_preferences["size_limit"])
+
+    entry_H264_low_enabled.select() if current_preferences["H264_low"]["enabled"] else entry_H264_low_enabled.deselect()
+    entry_H264_low_bitrate.delete(0, tk.END)
+    entry_H264_low_bitrate.insert(0, current_preferences["H264_low"]["bitrate"])
+
+    entry_H264_high_enabled.select() if current_preferences["H264_high"]["enabled"] else entry_H264_high_enabled.deselect()
+    entry_H264_high_bitrate.delete(0, tk.END)
+    entry_H264_high_bitrate.insert(0, current_preferences["H264_high"]["bitrate"])
+
+    entry_H265_enabled.select() if current_preferences["H265_VBR"]["enabled"] else entry_H265_enabled.deselect()
+    entry_H265_CRF.delete(0, tk.END)
+    entry_H265_CRF.insert(0, current_preferences["H265_VBR"]["CRF"])
+
+
 
 
 
@@ -176,45 +190,30 @@ def start_transfer():
     # - preferences management -
     preferences_ok = True
 
-    # Check the correctness of the preferences:
 
-    # Check if the root camcorder folder is set
-    if current_preferences["root_camcorder"] == "":
-        preferences_ok = False
-        messagebox.showerror("Error", "The root camcorder folder is not set in the preferences.")
-        return
+    # read the preferences from the GUI
+    current_preferences["root_camcorder"] = entry_root_camcorder.get()
+    current_preferences["destination_folder"] = entry_destination_folder.get()
+    current_preferences["in_secure_mode"] = var_in_secure_mode.get()
+    current_preferences["in_debug_mode"] = var_in_debug_mode.get()
+    current_preferences["size_limit"] = int(entry_size_limit.get())
+    current_preferences["H264_low"]["enabled"] = var_H264_low_enabled.get()
+    current_preferences["H264_low"]["bitrate"] = entry_H264_low_bitrate.get()
+    current_preferences["H264_high"]["enabled"] = var_H264_high_enabled.get()
+    current_preferences["H264_high"]["bitrate"] = entry_H264_high_bitrate.get()
+    current_preferences["H265_VBR"]["enabled"] = var_H265_enabled.get()
+    current_preferences["H265_VBR"]["CRF"] = entry_H265_CRF.get()
 
-    # Check if the destination folder is set
-    if current_preferences["destination_folder"] == "":
-        preferences_ok = False
-        messagebox.showerror("Error", "The destination folder is not set in the preferences.")
-        return
 
-    # Check if the root camcorder folder exists
-    if not os.path.isdir(current_preferences["root_camcorder"]):
-        preferences_ok = False
-        messagebox.showerror("Error", "The root camcorder folder does not exist.")
-        return
+    # TODO: call the function to control the correctivness of the preferences
 
-    # Check if the size limit is a number
-    try:
-        int(entry_size_limit.get())
-    except ValueError:
-        preferences_ok = False
-        messagebox.showerror("Error", "The size limit must be a number.")
-        return
+
+
 
     if preferences_ok:
-        print("Preferences are ok")
-        # Update the preferences with the values in the entries
-        current_preferences["root_camcorder"] = entry_root_camcorder.get()
-        current_preferences["destination_folder"] = entry_destination_folder.get()
-        current_preferences["in_secure_mode"] = var_in_secure_mode.get()
-        current_preferences["in_debug_mode"] = var_in_debug_mode.get()
-        current_preferences["size_limit"] = int(entry_size_limit.get())
-
         # Save the preferences
         preferences.save_preferences(current_preferences)
+
 
         print("Starting the transfer...")
 
@@ -224,10 +223,13 @@ def start_transfer():
 
         # Start the transfer in a new thread
         threaded_transfer()
-
     else:
-        print("Preferences are not ok")
+        messagebox.showerror("Error", "Some preferences are not valid. Please check the values.")
         return
+
+
+
+
 
 # Create the root window (the main window of the application)
 root = tk.Tk()
