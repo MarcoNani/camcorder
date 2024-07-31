@@ -6,6 +6,7 @@ import filecmp # for checking if two files are identycal
 import datetime # for the date and time
 import ffmpeg # for the video concatenation
 import subprocess # for the ffmpeg command execution
+import threading
 
 
 def calculate_file_hash(file_path, algorithm='sha256'):
@@ -178,7 +179,7 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
             result = subprocess.run(command, stdout=devnull, stderr=None if in_debug_mode else subprocess.PIPE)
 
         if result.returncode == 0:
-            print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+            print_color.green(f"The video has been transcoded successfully to: {output_video_path}.")
         else:
             print_color.red(f"Error during video transcoding: {result.stderr.decode('utf-8')}")
     except subprocess.CalledProcessError as e:
@@ -223,14 +224,89 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
             result = subprocess.run(command, stdout=devnull, stderr=None if in_debug_mode else subprocess.PIPE)
 
         if result.returncode == 0:
-            print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+            print_color.green(f"The video has been transcoded successfully to: {output_video_path}.")
         else:
             print_color.red(f"Error during video transcoding: {result.stderr.decode('utf-8')}")
     except subprocess.CalledProcessError as e:
         print_color.red(f"Error during video transcoding: {e}")
 
+
+def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, in_debug_mode=False):
+    
+    # function that transcode all the videos in the list_of_videos to H264
+    def transcode_H264_fixed(list_of_videos, bitrate, update_progress=None, in_debug_mode=False):
+        # calculate the output directory
+        source_directory = os.path.dirname(list_of_videos[0])
+        output_directory = os.path.join(source_directory, "transcoded_videos", f"H264_{bitrate}bps")
+
+        # Check if the output directory exists, if not create it
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        for video in list_of_videos:
+            transcode_H264_fixed(video, output_directory, bitrate, in_debug_mode)
+            if update_progress:
+                current_progress = ((list_of_videos.index(video) + 1) / len(list_of_videos)) * 100
+                update_progress(current_progress)
+
+
+    # function that transcode all the videos in the list_of_videos to H265
+    def transcode_H265(list_of_videos, CRF, update_progress=None, in_debug_mode=False):
+        # calculate the output directory
+        source_directory = os.path.dirname(list_of_videos[0])
+        output_directory = os.path.join(source_directory, "transcoded_videos", f"H264_CRF{CRF}")
+
+        # Check if the output directory exists, if not create it
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        for video in list_of_videos:
+            transcode_H265_CRF(video, output_directory, CRF, in_debug_mode)
+            if update_progress:
+                current_progress = ((list_of_videos.index(video) + 1) / len(list_of_videos)) * 100
+                update_progress(current_progress)
+    
+
+    # create the threads for the transcoding
+    thread_H264_low = threading.Thread(target=transcode_H264_fixed, args=(list_of_videos, bitrate_H264_low, update_H264_low_progress, in_debug_mode))
+    thread_H264_high = threading.Thread(target=transcode_H264_fixed, args=(list_of_videos, bitrate_H264_high, update_H264_high_progress, in_debug_mode))
+    thread_H265 = threading.Thread(target=transcode_H265, args=(list_of_videos, CRF_H265, update_H265_progress, in_debug_mode))
+
+    # start the threads
+    thread_H264_low.start()
+    thread_H264_high.start()
+    thread_H265.start()
+
+    # wait for the threads to finish
+    thread_H264_low.join()
+    thread_H264_high.join()
+    thread_H265.join()
+
+    print_color.green("All the videos have been transcoded successfully.")
+
+
+
+to_be_transcoded = [
+    "tests_py\\v_1.MTS",
+    "tests_py\\v_2.MTS",
+    "tests_py\\v_3.MTS",
+]
+
+
+transcode_list_of_videos(to_be_transcoded, in_debug_mode=True)
+
+
+
+
+
+
+
+
+
+
+
 # Example usage
-transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
-transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
-transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
-transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
+#transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
+#transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
+#transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
+#transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
