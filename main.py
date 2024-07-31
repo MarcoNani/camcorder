@@ -259,21 +259,7 @@ help_menu.add_command(label="About", command=about)
 root.columnconfigure(0, minsize=100)
 root.columnconfigure(1, minsize=500)
 root.columnconfigure(2, minsize=100)
-root.rowconfigure(0, minsize=50)
-root.rowconfigure(1, minsize=50)
-root.rowconfigure(2, minsize=50)
-root.rowconfigure(3, minsize=50)
-root.rowconfigure(4, minsize=50)
-root.rowconfigure(5, minsize=50)
-root.rowconfigure(6, minsize=50)
-root.rowconfigure(7, minsize=50)
-root.rowconfigure(8, minsize=50)
-root.rowconfigure(9, minsize=50)
-root.rowconfigure(10, minsize=50)
-# progressbar codification
-root.rowconfigure(11, minsize=50)
-root.rowconfigure(12, minsize=50)
-root.rowconfigure(13, minsize=50)
+
 
 # --- 1° ROW ---
 label_root_camcorder = tk.Label(root, text="Root camcorder folder:")
@@ -322,52 +308,53 @@ label_size_limit.grid(row=5, column=0, sticky="e", padx=10)
 entry_size_limit = tk.Entry(root)
 entry_size_limit.grid(row=5, column=1, sticky="w", padx=10)
 
-# --- 7° ROW ---
+# --- 10° ROW ---
 button_start_transfer = tk.Button(root, text="Start transfer", command=start_transfer)
-button_start_transfer.grid(row=6, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+button_start_transfer.grid(row=10, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
 
-# --- 8° ROW ---
+# --- 11° ROW ---
 label_output = tk.Label(root, text="Output:")
-label_output.grid(row=7, column=0, columnspan=3, sticky="w", padx=10)
+label_output.grid(row=11, column=0, columnspan=3, sticky="w", padx=10)
 
 output_text = RedirectText(root, height=10, width=80)
-output_text.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
+output_text.grid(row=12, column=0, columnspan=3, padx=10, pady=10)
 
-# --- 9° ROW ---
+# --- 12° ROW ---
 # some empty space
 
-# --- 10° ROW ---
+# --- 13° ROW ---
 # Add a progress bar
 # Label to display the percentage of progress
 progress_label = tk.Label(root, text="Transferring the files: not started", anchor='center')
-progress_label.grid(row=10, column=0, sticky="e", padx=10)
+progress_label.grid(row=13, column=0, sticky="e", padx=10)
 global progress_bar
 progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar.grid(row=10, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar.grid(row=13, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
 
-# --- 11° ROW ---
+# --- 14° ROW ---
 # label to display what type of transcode is being done
 label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 low bitrate: not started", anchor='center')
-label_progress_h264_8M.grid(row=11, column=0, sticky="e", padx=10)
+label_progress_h264_8M.grid(row=14, column=0, sticky="e", padx=10)
 global progress_bar_h264_8M
 progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_8M.grid(row=11, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h264_8M.grid(row=14, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
 
-# --- 12° ROW ---
+# --- 15° ROW ---
 # label to display what type of transcode is being done
 label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 high bitrate: not started", anchor='center')
-label_progress_h264_4M.grid(row=12, column=0, sticky="e", padx=10)
+label_progress_h264_4M.grid(row=15, column=0, sticky="e", padx=10)
 global progress_bar_h264_4M
 progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_4M.grid(row=12, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h264_4M.grid(row=15, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
 
-# --- 13° ROW ---
+# --- 16° ROW ---
 # label to display what type of transcode is being done
 label_progress_h265_CRF_23 = tk.Label(root, text="Transcoding to H265 variable bitrate: not started", anchor='center')
-label_progress_h265_CRF_23.grid(row=13, column=0, sticky="e", padx=10)
+label_progress_h265_CRF_23.grid(row=16, column=0, sticky="e", padx=10)
 global progress_bar_h265_CRF_23
 progress_bar_h265_CRF_23 = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h265_CRF_23.grid(row=13, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+progress_bar_h265_CRF_23.grid(row=16, column=1, columnspan=2, sticky="ew", padx=10, pady=10)
+
 
 
 # Redirect stdout and stderr to the Text widget
