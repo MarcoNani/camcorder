@@ -156,7 +156,7 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
     output_video_path = os.path.join(output_directory, output_file_name)
 
     if in_debug_mode:
-        print(f"Output video path: {output_video_path}")
+        print_color.purple(f"Output video path: {output_video_path}")
 
     # Check if file exists and handle overwrite logic
     if not overwrite and os.path.exists(output_video_path):
@@ -207,7 +207,7 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
     output_video_path = os.path.join(output_directory, output_file_name)
 
     if in_debug_mode:
-        print(f"Output video path: {output_video_path}")
+        print_color.purple(f"Output video path: {output_video_path}")
 
     # Check if file exists and handle overwrite logic
     if not overwrite and os.path.exists(output_video_path):
@@ -288,29 +288,23 @@ def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264
 
 
 
+if __name__ == "__main__":
+    to_be_transcoded = [
+        "tests_py\\v_1.MTS",
+        "tests_py\\v_2.MTS",
+        "tests_py\\v_3.MTS",
+    ]
 
-
-to_be_transcoded = [
-    "tests_py\\v_1.MTS",
-    "tests_py\\v_2.MTS",
-    "tests_py\\v_3.MTS",
-]
-
-
-transcode_list_of_videos(to_be_transcoded, in_debug_mode=True)
-
-
-
-
-
-
-
-
-
-
-
-# Example usage
-#transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
-#transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
-#transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
-#transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
+    def update_H264_low_progress(progress):
+        print_color.purple(f"H264 low: {progress:.2f}%")
+    def update_H264_high_progress(progress):
+        print_color.purple(f"H264 high: {progress:.2f}%")
+    def update_H265_progress(progress):
+        print_color.purple(f"H265: {progress:.2f}%")
+    transcode_list_of_videos(to_be_transcoded, update_H264_low_progress=update_H264_low_progress, update_H264_high_progress=update_H264_high_progress, update_H265_progress=update_H265_progress, in_debug_mode=False)
+    
+    # Example usage
+    #transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
+    #transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
+    #transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
+    #transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
