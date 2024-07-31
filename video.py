@@ -299,7 +299,14 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
         print_color.red(f"Error during video transcoding: {e}")
 
 
-def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, overwrite=False, in_debug_mode=False):
+def transcode_list_of_videos(list_of_videos, preferences, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, overwrite=False, in_debug_mode=False):
+    
+    # Get the preferences
+    bitrate_H264_low = preferences["H264_low"]["bitrate"]
+    bitrate_H264_high = preferences["H264_high"]["bitrate"]
+    crf_H265 = preferences["H265_VBR"]["CRF"]
+    
+    
     def transcode_H264_fixed_videos(videos, bitrate, update_progress=None):
         source_directory = os.path.dirname(videos[0])
         sub_directory = os.path.join("transcoded_videos", f"H264_{bitrate}bps")
@@ -326,17 +333,26 @@ def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264
                 current_progress = ((videos.index(video) + 1) / len(videos)) * 100
                 update_progress(current_progress)
 
-    thread_H264_low = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_low, update_H264_low_progress))
-    thread_H264_high = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_high, update_H264_high_progress))
-    thread_H265 = threading.Thread(target=transcode_H265_videos, args=(list_of_videos, CRF_H265, update_H265_progress))
+    if preferences["H264_low"]["enabled"]:
+        thread_H264_low = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_low, update_H264_low_progress))
+    if preferences["H264_high"]["enabled"]:
+        thread_H264_high = threading.Thread(target=transcode_H264_fixed_videos, args=(list_of_videos, bitrate_H264_high, update_H264_high_progress))
+    if preferences["H265_VBR"]["enabled"]:
+        thread_H265 = threading.Thread(target=transcode_H265_videos, args=(list_of_videos, crf_H265, update_H265_progress))
 
-    thread_H264_low.start()
-    thread_H264_high.start()
-    thread_H265.start()
+    if preferences["H264_low"]["enabled"]:
+        thread_H264_low.start()
+    if preferences["H264_high"]["enabled"]:
+        thread_H264_high.start()
+    if preferences["H265_VBR"]["enabled"]:
+        thread_H265.start()
 
-    thread_H264_low.join()
-    thread_H264_high.join()
-    thread_H265.join()
+    if preferences["H264_low"]["enabled"]:
+        thread_H264_low.join()
+    if preferences["H264_high"]["enabled"]:
+        thread_H264_high.join()
+    if preferences["H265_VBR"]["enabled"]:
+        thread_H265.join()
 
     print_color.green("All the videos have been transcoded successfully.")
 

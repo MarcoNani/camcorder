@@ -1,7 +1,19 @@
 {
-    "destination_folder": "fs_sim_real\\pc\\destination",
-    "in_secure_mode": false,
+    "destination_folder": "C:\\Users\\mache\\Repos\\camcorder\\fs_sim_real\\pc\\destination",
+    "in_secure_mode": true,
     "in_debug_mode": true,
     "root_camcorder": "C:\\Users\\mache\\Repos\\camcorder\\fs_sim_real\\camcorder",
-    "size_limit": 2124000000
+    "size_limit": 2124000000,
+    "H264_low": {
+        "enabled": true,
+        "bitrate": "4M"
+    },
+    "H264_high": {
+        "enabled": true,
+        "bitrate": "8M"
+    },
+    "H265_VBR": {
+        "enabled": true,
+        "CRF": "23"
+    }
 }

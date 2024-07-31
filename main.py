@@ -70,7 +70,7 @@ def threaded_transfer():
             # transcode the videos
             if to_be_transcoded:
                 # call the function to transcode the videos
-                video.transcode_list_of_videos(to_be_transcoded, bitrate_H264_low="4M", bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=update_H264_low_progress, update_H264_high_progress=update_H264_high_progress, update_H265_progress=update_H265_progress, overwrite=False, in_debug_mode=current_preferences["in_debug_mode"])
+                video.transcode_list_of_videos(to_be_transcoded, preferences=current_preferences, update_H264_low_progress=update_H264_low_progress, update_H264_high_progress=update_H264_high_progress, update_H265_progress=update_H265_progress, overwrite=False, in_debug_mode=current_preferences["in_debug_mode"])
 
 
             # Re-enable the start button
@@ -157,6 +157,7 @@ def select_root_camcorder_folder():
             folder_path = folder_path.replace("/", "\\")
         entry_root_camcorder.delete(0, tk.END)
         entry_root_camcorder.insert(0, folder_path)
+        current_preferences["root_camcorder"] = folder_path
 
 def select_destination_folder():
     """Function to select the destination folder."""
@@ -166,6 +167,7 @@ def select_destination_folder():
             folder_path = folder_path.replace("/", "\\")
         entry_destination_folder.delete(0, tk.END)
         entry_destination_folder.insert(0, folder_path)
+        current_preferences["destination_folder"] = folder_path
 
 
 # -- transfer function --
