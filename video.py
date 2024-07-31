@@ -143,7 +143,7 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
 ############################################################################################################
 
 
-def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_debug_mode=False):
+def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_debug_mode=False, overwrite=False):
     # Get the file name and the extension
     file_name = os.path.basename(input_video_path)
     file_name, extension = os.path.splitext(file_name)
@@ -157,6 +157,11 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
 
     if in_debug_mode:
         print(f"Output video path: {output_video_path}")
+
+    # Check if file exists and handle overwrite logic
+    if not overwrite and os.path.exists(output_video_path):
+        print_color.yellow(f"File already exists: {output_video_path}. Skipping transcoding.")
+        return
 
     # ffmpeg command
     command = [
@@ -173,6 +178,7 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
     # Set the log level to suppress stdout only if not in debug mode
     if not in_debug_mode:
         command.insert(1, '-loglevel')
+        command.insert(2, 'error')
 
     print("Transcoding the video...")
     try:
@@ -187,7 +193,8 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
     except subprocess.CalledProcessError as e:
         print_color.red(f"Error during video transcoding: {e}")
 
-def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode=False):
+
+def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode=False, overwrite=False):
     # Get the file name and the extension
     file_name = os.path.basename(input_video_path)
     file_name, extension = os.path.splitext(file_name)
@@ -201,6 +208,11 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
 
     if in_debug_mode:
         print(f"Output video path: {output_video_path}")
+
+    # Check if file exists and handle overwrite logic
+    if not overwrite and os.path.exists(output_video_path):
+        print_color.yellow(f"File already exists: {output_video_path}. Skipping transcoding.")
+        return
 
     # ffmpeg command
     command = [
@@ -217,6 +229,7 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
     # Set the log level to suppress stdout only if not in debug mode
     if not in_debug_mode:
         command.insert(1, '-loglevel')
+        command.insert(2, 'error')
 
     print("Transcoding the video...")
     try:
@@ -232,7 +245,7 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
         print_color.red(f"Error during video transcoding: {e}")
 
 
-def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, in_debug_mode=False):
+def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264_high='8M', CRF_H265=23, update_H264_low_progress=None, update_H264_high_progress=None, update_H265_progress=None, overwrite=False, in_debug_mode=False):
     def transcode_H264_fixed_videos(videos, bitrate, update_progress=None):
         source_directory = os.path.dirname(videos[0])
         sub_directory = os.path.join("transcoded_videos", f"H264_{bitrate}bps")
@@ -241,7 +254,7 @@ def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264
             os.makedirs(output_directory)
 
         for video in videos:
-            transcode_H264_fixed(video, output_directory, bitrate, in_debug_mode)
+            transcode_H264_fixed(video, output_directory, bitrate, in_debug_mode, overwrite)
             if update_progress:
                 current_progress = ((videos.index(video) + 1) / len(videos)) * 100
                 update_progress(current_progress)
@@ -254,7 +267,7 @@ def transcode_list_of_videos(list_of_videos, bitrate_H264_low='4M', bitrate_H264
             os.makedirs(output_directory)
 
         for video in videos:
-            transcode_H265_CRF(video, output_directory, CRF, in_debug_mode)
+            transcode_H265_CRF(video, output_directory, CRF, in_debug_mode, overwrite)
             if update_progress:
                 current_progress = ((videos.index(video) + 1) / len(videos)) * 100
                 update_progress(current_progress)
