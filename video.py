@@ -139,55 +139,6 @@ def rename_copied_file(file_name, destination_folder, in_debug_mode=True, keep_o
         print_color.green(f"The file has been renamed to {new_file_name}")
 
 
-
-def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_log_file, in_debug_mode=False):
-    if in_debug_mode:
-        print_color.purple(f"Video files to concatenate: {video_files}")
-
-    extension = os.path.splitext(video_files[0])[1]
-
-    # Get the output file name from the last modification date of the last file in the list of files to concatenate
-    output_file_name = obtain_modification_date(video_files[-1]) + extension
-
-    # Create a temporary text file
-    with open('filelist.txt', 'w') as f:
-        for video_file in video_files:
-            # Write each input file to the text file
-            f.write(f"file '{video_file}'\n")
-
-    print("Concatenating the videos...")
-    # Use ffmpeg to concatenate the videos listed in the text file
-    if in_debug_mode:
-        print_color.purple("Output of the ffmpeg command:")
-        (
-            ffmpeg
-            .input('filelist.txt', format='concat', safe=0)
-            .output(os.path.join(output_directory, output_file_name), c='copy')  # Use direct copy of codecs
-            .run(overwrite_output=True)
-        )
-        print_color.purple("End of the output of ffmpeg command:")
-    else:
-        (
-            ffmpeg
-            .input('filelist.txt', format='concat', safe=0)
-            .output(os.path.join(output_directory, output_file_name), c='copy')  # Use direct copy of codecs
-            .run(overwrite_output=True, quiet=True)
-        )
-
-    # Remove the temporary text file
-    os.remove('filelist.txt')
-
-
-    print_color.green(f"The videos have been concatenated into {os.path.join(output_directory, output_file_name)}")
-
-    # add the hashes of the concatenated files to the copied_files_log_file
-    with open(copied_files_log_file, 'a') as file:
-        for hash_file in hash_to_be_concatenated:
-            file.write(hash_file + "\n")
-            if in_debug_mode:
-                print_color.purple(f"The hash {hash_file} has been added to the copied files log")
-
-
 def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_debug_mode=False):
     # Get the file name and the extension
     file_name = os.path.basename(input_video_path)
@@ -201,46 +152,37 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
     output_video_path = os.path.join(output_directory, output_file_name)
 
     if in_debug_mode:
-        print_color.purple(f"Output video path: {output_video_path}")
+        print(f"Output video path: {output_video_path}")
 
-        # ffmpeg command
-        command = [
-            'ffmpeg',
-            '-i', input_video_path,
-            '-vf', 'yadif=0:-1:0',
-            '-c:v', 'libx264',
-            '-b:v', bitrate,
-            '-preset', 'medium',
-            '-c:a', 'copy',
-            output_video_path
-        ]
+    # ffmpeg command
+    command = [
+        'ffmpeg',
+        '-i', input_video_path,
+        '-vf', 'yadif=0:-1:0',
+        '-c:v', 'libx264',
+        '-b:v', bitrate,
+        '-preset', 'medium',
+        '-c:a', 'copy',
+        output_video_path
+    ]
 
-        print_color.purple(f"Transcoding the video with the command: {command}")
-    else:
-        # ffmpeg command
-        command = [
-            'ffmpeg',
-            '-loglevel', 'quiet',
-            '-i', input_video_path,
-            '-vf', 'yadif=0:-1:0',
-            '-c:v', 'libx264',
-            '-b:v', bitrate,
-            '-preset', 'medium',
-            '-c:a', 'copy',
-            output_video_path
-        ]
+    # Set the log level to suppress stdout only if not in debug mode
+    if not in_debug_mode:
+        command.insert(1, '-loglevel')
+        command.insert(2, 'error')  # Show errors only
 
-
-    # Execute the command
     print("Transcoding the video...")
     try:
-        # Use check_call to run the command
-        subprocess.check_call(command)
-        print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+        # Use subprocess.run to suppress only stdout
+        with open(os.devnull, 'w') as devnull:
+            result = subprocess.run(command, stdout=devnull, stderr=None if in_debug_mode else subprocess.PIPE)
+
+        if result.returncode == 0:
+            print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+        else:
+            print_color.red(f"Error during video transcoding: {result.stderr.decode('utf-8')}")
     except subprocess.CalledProcessError as e:
         print_color.red(f"Error during video transcoding: {e}")
-
-    # call the callback function to update the GUI
 
 def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode=False):
     # Get the file name and the extension
@@ -254,51 +196,41 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
     # Get the output file path
     output_video_path = os.path.join(output_directory, output_file_name)
 
-    # ffmpeg command
     if in_debug_mode:
-        print_color.purple(f"Output video path: {output_video_path}")
+        print(f"Output video path: {output_video_path}")
 
-        command = [
-            'ffmpeg',
-            '-i', input_video_path,
-            '-vf', 'yadif=0:-1:0',
-            '-c:v', 'libx265',
-            '-crf', str(crf),
-            '-preset', 'medium',
-            '-c:a', 'copy',
-            output_video_path
-        ]
-        print_color.purple(f"Transcoding the video with the command: {command}")
-    else:
-        command = [
-            'ffmpeg',
-            '-loglevel', 'quiet',
-            '-i', input_video_path,
-            '-vf', 'yadif=0:-1:0',
-            '-c:v', 'libx265',
-            '-crf', str(crf),
-            '-preset', 'medium',
-            '-c:a', 'copy',
-            output_video_path
-        ]
+    # ffmpeg command
+    command = [
+        'ffmpeg',
+        '-i', input_video_path,
+        '-vf', 'yadif=0:-1:0',
+        '-c:v', 'libx265',
+        '-crf', str(crf),
+        '-preset', 'medium',
+        '-c:a', 'copy',
+        output_video_path
+    ]
 
-    # Execute the command
+    # Set the log level to suppress stdout only if not in debug mode
+    if not in_debug_mode:
+        command.insert(1, '-loglevel')
+        command.insert(2, 'error')  # Show errors only
+
     print("Transcoding the video...")
     try:
-        # Use check_call to run the command
-        subprocess.check_call(command)
-        print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+        # Use subprocess.run to suppress only stdout
+        with open(os.devnull, 'w') as devnull:
+            result = subprocess.run(command, stdout=devnull, stderr=None if in_debug_mode else subprocess.PIPE)
+
+        if result.returncode == 0:
+            print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+        else:
+            print_color.red(f"Error during video transcoding: {result.stderr.decode('utf-8')}")
     except subprocess.CalledProcessError as e:
         print_color.red(f"Error during video transcoding: {e}")
 
-    # call the callback function to update the GUI
-
-
-
-# transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
-
-# transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
-
-# transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
-
-# transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
+# Example usage
+transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
+transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
+transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
+transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
