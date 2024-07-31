@@ -5,6 +5,7 @@ import shutil # for copying files
 import filecmp # for checking if two files are identycal
 import datetime # for the date and time
 import ffmpeg # for the video concatenation
+import subprocess # for the ffmpeg command execution
 
 
 def calculate_file_hash(file_path, algorithm='sha256'):
@@ -185,3 +186,119 @@ def concat(video_files, output_directory, hash_to_be_concatenated, copied_files_
             file.write(hash_file + "\n")
             if in_debug_mode:
                 print_color.purple(f"The hash {hash_file} has been added to the copied files log")
+
+
+def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_debug_mode=False):
+    # Get the file name and the extension
+    file_name = os.path.basename(input_video_path)
+    file_name, extension = os.path.splitext(file_name)
+
+    # Get the output file name
+    suffix = f"_H264_{bitrate}bps"
+    output_file_name = f"{file_name}{suffix}.mp4"
+
+    # Get the output file path
+    output_video_path = os.path.join(output_directory, output_file_name)
+
+    if in_debug_mode:
+        print_color.purple(f"Output video path: {output_video_path}")
+
+        # ffmpeg command
+        command = [
+            'ffmpeg',
+            '-i', input_video_path,
+            '-vf', 'yadif=0:-1:0',
+            '-c:v', 'libx264',
+            '-b:v', bitrate,
+            '-preset', 'medium',
+            '-c:a', 'copy',
+            output_video_path
+        ]
+
+        print_color.purple(f"Transcoding the video with the command: {command}")
+    else:
+        # ffmpeg command
+        command = [
+            'ffmpeg',
+            '-loglevel', 'quiet',
+            '-i', input_video_path,
+            '-vf', 'yadif=0:-1:0',
+            '-c:v', 'libx264',
+            '-b:v', bitrate,
+            '-preset', 'medium',
+            '-c:a', 'copy',
+            output_video_path
+        ]
+
+
+    # Execute the command
+    print("Transcoding the video...")
+    try:
+        # Use check_call to run the command
+        subprocess.check_call(command)
+        print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+    except subprocess.CalledProcessError as e:
+        print_color.red(f"Error during video transcoding: {e}")
+
+    # call the callback function to update the GUI
+
+def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode=False):
+    # Get the file name and the extension
+    file_name = os.path.basename(input_video_path)
+    file_name, extension = os.path.splitext(file_name)
+
+    # Get the output file name
+    suffix = f"_H265_CRF{crf}"
+    output_file_name = f"{file_name}{suffix}.mp4"
+
+    # Get the output file path
+    output_video_path = os.path.join(output_directory, output_file_name)
+
+    # ffmpeg command
+    if in_debug_mode:
+        print_color.purple(f"Output video path: {output_video_path}")
+
+        command = [
+            'ffmpeg',
+            '-i', input_video_path,
+            '-vf', 'yadif=0:-1:0',
+            '-c:v', 'libx265',
+            '-crf', str(crf),
+            '-preset', 'medium',
+            '-c:a', 'copy',
+            output_video_path
+        ]
+        print_color.purple(f"Transcoding the video with the command: {command}")
+    else:
+        command = [
+            'ffmpeg',
+            '-loglevel', 'quiet',
+            '-i', input_video_path,
+            '-vf', 'yadif=0:-1:0',
+            '-c:v', 'libx265',
+            '-crf', str(crf),
+            '-preset', 'medium',
+            '-c:a', 'copy',
+            output_video_path
+        ]
+
+    # Execute the command
+    print("Transcoding the video...")
+    try:
+        # Use check_call to run the command
+        subprocess.check_call(command)
+        print_color.green(f"The video has been transcoded successfully to {output_video_path}.")
+    except subprocess.CalledProcessError as e:
+        print_color.red(f"Error during video transcoding: {e}")
+
+    # call the callback function to update the GUI
+
+
+
+# transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '8M', True)
+
+# transcode_H264_fixed("tests_py\\video_1.MTS", "tests_py", '4M', False)
+
+# transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 23, False)
+
+# transcode_H265_CRF("tests_py\\video_1.MTS", "tests_py", 20, True)
