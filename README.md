@@ -1,3 +1,4 @@
+
 # Camcorder
 Camcorder is a program that let you transfer your videos taken with a Sony HDR-CX405 camcorder to your pc.
 
@@ -24,6 +25,9 @@ Camcorder is a program that let you transfer your videos taken with a Sony HDR-C
     `python main.py`
 
 Done.
+
+## Usage:
+Watch [my YouTube video](https://youtu.be/10dh-1RmqeA) for a demonstration on the usage
 
 ## Note:
 After the first transfer has started a folder called preferences will be created in the same folder where main.py is located to store the program preferences. If this file is deleted or in corrupted the programm will try to load readable preferences and put the others as the default. If anything is readable the program will load all the default preferences. The next time a valid transfer has started preferences file is overwrited with the correct one.
