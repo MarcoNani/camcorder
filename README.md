@@ -14,12 +14,17 @@ Camcorder is a program that let you transfer your videos taken with a Sony HDR-C
 
 ## Installation:
 1. Install ffmpeg in your preferred way (I have installed it with winget, the Windows packet manager).
-2.  Install the Python interpreter
+
+    For windows: `winget install ffmpeg `
+
+2. Install the Python interpreter
+
 3. Install the ffmpeg-python library:
 
     `pip install ffmpeg-python`
 
 4. Clone the repository or download it as a ZIP file (if you have downloaded it as a ZIP, unzip it).
+
 5. Run `main.py` with the python interpeter:
 
     `python main.py`
