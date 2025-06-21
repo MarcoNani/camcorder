@@ -47,7 +47,7 @@ def start_transfer(update_progress=None):
     print("Calculating the hash of the files...")
 
     for video_path in video_files:
-        hash_file = video.calculate_file_hash(video_path, 'sha256')
+        hash_file = video.calculate_file_hash(video_path)
         if current_preferences["in_debug_mode"]:
             print_color.purple(f"The SHA-256 hash of the file {os.path.basename(video_path)} is: {hash_file}")
         # check if the file has already been copied (looking in the COPIED_FILES_LOG)

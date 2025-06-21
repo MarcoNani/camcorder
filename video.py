@@ -9,25 +9,24 @@ import subprocess # for the ffmpeg command execution
 import threading
 
 
-def calculate_file_hash(file_path, algorithm='sha256'):
+def calculate_file_hash(file_path):
     """
-    Calculate the hash of a file using the specified algorithm.
+    Calculate the hash based on file lenght and modification timestamp.
 
     :param file_path: Path of the file to calculate the hash.
-    :param algorithm: Name of the hashing algorithm (default: 'sha256').
-    :return: Hexadecimal string of the calculated hash.
+    :return: Concatenation of file length and modification timestamp as a string.
     """
-    # Create the hash object
-    h = hashlib.new(algorithm)
     
-    # Read the file in binary mode
-    with open(file_path, 'rb') as file:
-        # Read and update the hash for blocks
-        while block := file.read(8192):
-            h.update(block)
+    # Get the file size
+    file_size = os.path.getsize(file_path)
 
-    # Return the hash in hexadecimal format
-    return h.hexdigest()
+    # Get the last modification date of the file
+    formatted_modification_date = obtain_modification_date(file_path)
+
+    # Concatenate the file size and the formatted modification date
+    hash_value = f"{file_size}_{formatted_modification_date}"
+
+    return hash_value
 
 def files_in(directory, extension):
     list_of_files = []
