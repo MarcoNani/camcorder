@@ -221,7 +221,7 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
         'ffmpeg',
         '-hwaccel', 'cuda',             # Use CUDA for hardware acceleration (it should fall back to CPU if CUDA is not available)
         '-i', input_video_path,         # Input video file
-        '-vf', 'yadif_cuda=0:-1:0',     # Deinterlacing filter (now not with CUDA)
+        '-vf', 'yadif=0:-1:0',     # Deinterlacing filter (now not with CUDA)
         '-c:v', 'h264_nvenc',           # Use NVIDIA GPU encoder
         '-b:v', bitrate,                # Set video bitrate
         '-preset', 'p4',                # Use NVENC preset (e.g., p1 to p7, p4 is "medium")
