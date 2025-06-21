@@ -407,21 +407,21 @@ progress_bar.grid(row=9, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
 # --- 10° ROW ---
 # label to display what type of transcode is being done
-label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 low bitrate: not started", anchor='center')
-label_progress_h264_8M.grid(row=10, column=0, columnspan=2, sticky="e", padx=10)
-global progress_bar_h264_8M
-progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_8M.grid(row=10, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
+label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 low bitrate: not started", anchor='center')
+label_progress_h264_4M.grid(row=10, column=0, columnspan=2, sticky="e", padx=10)
+global progress_bar_h264_4M
+progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar_h264_4M.grid(row=10, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
 
 
 # --- 11° ROW ---
 # label to display what type of transcode is being done
-label_progress_h264_4M = tk.Label(root, text="Transcoding to H264 high bitrate: not started", anchor='center')
-label_progress_h264_4M.grid(row=11, column=0, columnspan=2, sticky="e", padx=10)
-global progress_bar_h264_4M
-progress_bar_h264_4M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
-progress_bar_h264_4M.grid(row=11, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
+label_progress_h264_8M = tk.Label(root, text="Transcoding to H264 high bitrate: not started", anchor='center')
+label_progress_h264_8M.grid(row=11, column=0, columnspan=2, sticky="e", padx=10)
+global progress_bar_h264_8M
+progress_bar_h264_8M = ttk.Progressbar(root, orient='horizontal', mode='determinate', maximum=100)
+progress_bar_h264_8M.grid(row=11, column=3, columnspan=4, sticky="ew", padx=10, pady=10)
 
 
 
