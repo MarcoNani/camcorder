@@ -221,7 +221,7 @@ def transcode_H264_fixed(input_video_path, output_directory, bitrate='8M', in_de
         'ffmpeg',
         '-hwaccel', 'cuda',             # Use CUDA for hardware acceleration (it should fall back to CPU if CUDA is not available)
         '-i', input_video_path,         # Input video file
-        '-vf', 'yadif=0:-1:0',     # Deinterlacing filter (now not with CUDA)
+        '-vf', 'yadif=0:-1:0',          # Deinterlacing filter (now not with CUDA)
         '-c:v', 'h264_nvenc',           # Use NVIDIA GPU encoder
         '-b:v', bitrate,                # Set video bitrate
         '-preset', 'p4',                # Use NVENC preset (e.g., p1 to p7, p4 is "medium")
@@ -271,12 +271,13 @@ def transcode_H265_CRF(input_video_path, output_directory, crf=23, in_debug_mode
     # ffmpeg command
     command = [
         'ffmpeg',
-        '-i', input_video_path,
-        '-vf', 'yadif=0:-1:0',
-        '-c:v', 'libx265',
-        '-crf', str(crf),
-        '-preset', 'medium',
-        '-c:a', 'copy',
+        '-hwaccel', 'cuda',             # Use CUDA for hardware acceleration (it should fall back to CPU if CUDA is not available)
+        '-i', input_video_path,         # Input video file
+        '-vf', 'yadif=0:-1:0',          # Deinterlacing filter (now not with CUDA)
+        '-c:v', 'hevc_nvenc',           # Use NVIDIA GPU encoder for H.265
+        '-crf', str(crf),               # Set CRF value
+        '-preset', 'p4',                # Use NVENC preset (e.g., p1 to p7, p4 is "medium")
+        '-c:a', 'copy',                 # Copy audio without re-encoding
         output_video_path
     ]
 
